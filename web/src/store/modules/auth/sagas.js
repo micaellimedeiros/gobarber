@@ -1,7 +1,7 @@
 import { takeLatest, call, put, all } from 'redux-saga/effects';
 import { toast } from 'react-toastify';
 
-import { signInSucess, signFailure } from './actions';
+import { signInSuccess, signFailure } from './actions';
 import api from '~/services/api';
 import history from '~/services/history';
 
@@ -19,7 +19,9 @@ export function* signIn({ payload }) {
       toast.error('Este usuário não é prestador de serviço.');
       return;
     }
-    yield put(signInSucess(token, user));
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+
+    yield put(signInSuccess(token, user));
     history.push('/dashboard');
   } catch (err) {
     toast.error(
@@ -46,7 +48,22 @@ export function* signUp({ payload }) {
   }
 }
 
+export function setToken({ payload }) {
+  if (!payload) return;
+
+  const { token } = payload.auth;
+
+  if (token) {
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+  }
+}
+export function signOut() {
+  history.push('/');
+}
+
 export default all([
+  takeLatest('persis/REHIDRATE', setToken),
   takeLatest('@auth/SIGN_IN_REQUEST', signIn),
   takeLatest('@auth/SIGN_UP_REQUEST', signUp),
+  takeLatest('@auth/SIGN_OUT', signOut),
 ]);
