@@ -1,9 +1,9 @@
-import { takeLatest, call, put, all } from 'redux-saga/effects';
-import { toast } from 'react-toastify';
+import { Alert } from 'react-native';
+import { all, takeLatest, call, put } from 'redux-saga/effects';
 
 import { signInSuccess, signFailure } from './actions';
+
 import api from '~/services/api';
-import history from '~/services/history';
 
 export function* signIn({ payload }) {
   try {
@@ -13,36 +13,50 @@ export function* signIn({ payload }) {
       email,
       password,
     });
+
     const { token, user } = response.data;
 
-    if (!user.provider) {
-      toast.error('Este usuário não é prestador de serviço.');
+    if (user.provider) {
+      Alert.alert(
+        'Erro no login',
+        'Usuário não pode ser prestador de serviços'
+      );
+      yield put(signFailure());
       return;
     }
+
     api.defaults.headers.Authorization = `Bearer ${token}`;
 
     yield put(signInSuccess(token, user));
-    history.push('/dashboard');
+
+    // history.push('/dashboard');
   } catch (err) {
-    toast.error(
-      'Ocorreu uma falha na autenticação. Verifique seus dados e tente novamente.'
+    Alert.alert(
+      'Falha na autenticação',
+      'Houve um erro no login, verifique seus dados'
     );
     yield put(signFailure());
   }
 }
+
 export function* signUp({ payload }) {
   try {
     const { name, email, password } = payload;
+
     yield call(api.post, 'users', {
       name,
       email,
       password,
-      provider: true,
     });
 
-    history.push('/');
+    Alert.alert('Sucesso!', 'Conta criada com sucesso');
+
+    // history.push('/');
   } catch (err) {
-    toast.error('Falha no cadastro. Verifique seus dados e tente novamente.');
+    Alert.alert(
+      'Falha no cadastro',
+      'houve um erro no cadastro, verifique seus dados'
+    );
 
     yield put(signFailure());
   }
@@ -57,13 +71,9 @@ export function setToken({ payload }) {
     api.defaults.headers.Authorization = `Bearer ${token}`;
   }
 }
-export function signOut() {
-  history.push('/');
-}
 
 export default all([
-  takeLatest('persis/REHIDRATE', setToken),
+  takeLatest('persist/REHYDRATE', setToken),
   takeLatest('@auth/SIGN_IN_REQUEST', signIn),
   takeLatest('@auth/SIGN_UP_REQUEST', signUp),
-  takeLatest('@auth/SIGN_OUT', signOut),
 ]);
