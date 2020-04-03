@@ -1,9 +1,10 @@
 import { takeLatest, call, put, all } from 'redux-saga/effects';
 import { toast } from 'react-toastify';
 
-import { signInSuccess, signFailure } from './actions';
 import api from '~/services/api';
 import history from '~/services/history';
+
+import { signInSuccess, signFailure } from './actions';
 
 export function* signIn({ payload }) {
   try {
@@ -13,26 +14,27 @@ export function* signIn({ payload }) {
       email,
       password,
     });
+
     const { token, user } = response.data;
 
     if (!user.provider) {
-      toast.error('Este usuário não é prestador de serviço.');
+      toast.error('Usuario não é prestador');
       return;
     }
-    api.defaults.headers.Authorization = `Bearer ${token}`;
 
     yield put(signInSuccess(token, user));
+
     history.push('/dashboard');
   } catch (err) {
-    toast.error(
-      'Ocorreu uma falha na autenticação. Verifique seus dados e tente novamente.'
-    );
+    toast.error('Falha na autenticação, verifique seus dados');
     yield put(signFailure());
   }
 }
+
 export function* signUp({ payload }) {
   try {
     const { name, email, password } = payload;
+
     yield call(api.post, 'users', {
       name,
       email,
@@ -42,7 +44,7 @@ export function* signUp({ payload }) {
 
     history.push('/');
   } catch (err) {
-    toast.error('Falha no cadastro. Verifique seus dados e tente novamente.');
+    toast.error('Falha no cadastro, verifique seus dados');
 
     yield put(signFailure());
   }
@@ -53,16 +55,15 @@ export function setToken({ payload }) {
 
   const { token } = payload.auth;
 
-  if (token) {
-    api.defaults.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) api.defaults.headers.Authorization = `Bearer ${token}`;
 }
+
 export function signOut() {
   history.push('/');
 }
 
 export default all([
-  takeLatest('persis/REHIDRATE', setToken),
+  takeLatest('persist/REHYDRATE', setToken),
   takeLatest('@auth/SIGN_IN_REQUEST', signIn),
   takeLatest('@auth/SIGN_UP_REQUEST', signUp),
   takeLatest('@auth/SIGN_OUT', signOut),
