@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useField } from '@rocketseat/unform';
 
 import api from '~/services/api';
-
 import { Container } from './styles';
 
 export default function AvatarInput() {
@@ -23,7 +22,7 @@ export default function AvatarInput() {
     }
   }, [ref, registerField]);
 
-  async function handleChange(e) {
+  async function handleChanged(e) {
     const data = new FormData();
 
     data.append('file', e.target.files[0]);
@@ -41,16 +40,18 @@ export default function AvatarInput() {
       <label htmlFor="avatar">
         <img
           src={
-            preview || 'https://api.adorable.io/avatars/50/abott@adorable.png'
+            preview ||
+            'https://api.adorable.io/avatars/200/beautiful@adorable.io.png'
           }
-          alt=""
+          alt="avatar"
         />
+
         <input
           type="file"
           id="avatar"
           accept="image/*"
           data-file={file}
-          onChange={handleChange}
+          onChange={handleChanged}
           ref={ref}
         />
       </label>
