@@ -18,6 +18,7 @@ module.exports = {
     sourceType: "module"
   },
   plugins: ["react", "jsx-a11y", "import", "react-hooks", "prettier"],
+
   rules: {
     "prettier/prettier": "error",
     "react/jsx-filename-extension": ["error", { extensions: [".js", ".jsx"] }],
@@ -31,8 +32,14 @@ module.exports = {
     camelcase: "off",
     "no-console": ["error", { allow: ["tron"] }],
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "react/prop-types": [
+      "enabled",
+      { "ignore": "ignore", "customValidators": "customValidator" }
+    ]
+
   },
+
   settings: {
     "import/resolver": {
       "babel-plugin-root-import": {
