@@ -1,7 +1,7 @@
+import { takeLatest, call, put, all } from 'redux-saga/effects';
 import { Alert } from 'react-native';
-import { all, takeLatest, call, put } from 'redux-saga/effects';
-
 import api from '~/services/api';
+
 import { updateProfileSuccess, updateProfileFailure } from './actions';
 
 export function* updateProfile({ payload }) {
@@ -16,16 +16,15 @@ export function* updateProfile({ payload }) {
 
     const response = yield call(api.put, 'users', profile);
 
-    Alert.alert('Sucesso!', 'Perfil atualizado com sucesso!');
+    Alert.alert('Sucesso', 'Perfil atualizado com sucesso');
 
     yield put(updateProfileSuccess(response.data));
   } catch (err) {
     Alert.alert(
       'Falha na atualização',
-      'Houve um erro ao atualizar perfil, confira seus dados'
+      'Houve um erro na atualização de perfil, verifique seus dados'
     );
     yield put(updateProfileFailure());
   }
 }
-
 export default all([takeLatest('@user/UPDATE_PROFILE_REQUEST', updateProfile)]);
