@@ -1,9 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+
 import { Image } from 'react-native';
 
+import { useDispatch, useSelector } from 'react-redux';
+
+import PropTypes from 'prop-types';
 import logo from '~/assets/logo.png';
 
 import Background from '~/components/Background';
+import { signInRequest } from '~/store/modules/auth/actions';
 
 import {
   Container,
@@ -15,9 +20,16 @@ import {
 } from './styles';
 
 export default function SignIn({ navigation }) {
+  const dispatch = useDispatch();
+  const loading = useSelector(state => state.auth.loading);
   const passwordRef = useRef();
 
-  function handleSubmit() {}
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  function handleSubmit() {
+    dispatch(signInRequest(email, password));
+  }
 
   return (
     <Background>
@@ -27,24 +39,30 @@ export default function SignIn({ navigation }) {
         <Form>
           <FormInput
             icon="mail-outline"
-            keyboardType="email-adress"
+            keyboardType="email-address"
             autoCorrect={false}
             autoCapitalize="none"
-            placeholder="Digite seu email"
+            placeholder="Digite o seu e-mail"
             returnKeyType="next"
-            onSubmiteEditing={() => passwordRef.current.focus()}
+            onSubmitEditing={() => passwordRef.current.focus()}
+            value={email}
+            onChangeText={setEmail}
           />
           <FormInput
             icon="lock-outline"
             secureTextEntry
-            placeholder="Digite sua senha"
+            placeholder="Sua senha correta"
             ref={passwordRef}
             returnKeyType="send"
-            onSubmiteEditing={handleSubmit}
+            onSubmitEditing={handleSubmit}
+            value={password}
+            onChangeText={setPassword}
           />
-          <SubmitButton onPress={handleSubmit}>Acessar</SubmitButton>
-        </Form>
 
+          <SubmitButton loading={loading} onPress={handleSubmit}>
+            Acessar
+          </SubmitButton>
+        </Form>
         <SignLink onPress={() => navigation.navigate('SignUp')}>
           <SignLinkText>Criar conta gratuita</SignLinkText>
         </SignLink>
@@ -52,3 +70,9 @@ export default function SignIn({ navigation }) {
     </Background>
   );
 }
+
+SignIn.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
